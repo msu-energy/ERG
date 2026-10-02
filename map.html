@@ -11,51 +11,18 @@
 <body>
   <div id="map"></div>
   <script>
-    // Approximate fallback (campus center) in case the lookup fails
-    const FALLBACK = [45.6676, -111.0490];
+    const ERI_OFFICE = [45.6661250, -111.0483080];
 
-    const map = L.map('map').setView(FALLBACK, 17);
+    const map = L.map('map').setView(ERI_OFFICE, 18);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    function addPin(latlng, note) {
-      L.marker(latlng).addTo(map)
-        .bindPopup('<b>ERI Office</b>' + (note ? '<br><small>' + note + '</small>' : ''))
-        .bindTooltip('ERI Office', { permanent: true, direction: 'right', offset: [12, -20] })
-        .openPopup();
-    }
-
-    // Find the building footprint, then pick its north-east-most vertex
-    const query = `[out:json][timeout:25];
-      way["building"]["name"~"Johnson Hall"](45.65,-111.08,45.69,-111.02);
-      out geom;`;
-
-    fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(query) })
-      .then(r => r.json())
-      .then(data => {
-        const way = data.elements.find(e => /AJM/i.test(e.tags.name || '')) || data.elements[0];
-        if (!way) throw new Error('Building not found');
-
-        const pts = way.geometry.map(p => [p.lat, p.lon]);
-        L.polygon(pts, { color: '#b5121b', weight: 2, fillOpacity: 0.15 }).addTo(map);
-
-        // NE = vertex farthest along the north + east direction (in meters)
-        const lat0 = pts[0][0], lon0 = pts[0][1];
-        const kLon = Math.cos(lat0 * Math.PI / 180);
-        const ne = pts.reduce((best, p) => {
-          const score = (p[0] - lat0) + (p[1] - lon0) * kLon;
-          return score > best.score ? { p, score } : best;
-        }, { p: pts[0], score: -Infinity }).p;
-
-        map.fitBounds(L.polygon(pts).getBounds().pad(2));
-        addPin(ne);
-      })
-      .catch(err => {
-        console.warn(err);
-        addPin(FALLBACK, 'Approximate location. Building lookup failed.');
-      });
+    L.marker(ERI_OFFICE).addTo(map)
+      .bindPopup('<b>ERI Office</b>')
+      .bindTooltip('ERI Office', { permanent: true, direction: 'right', offset: [12, -20] })
+      .openPopup();
   </script>
 </body>
 </html>
