@@ -1,1 +1,16 @@
-
+<!doctype html>
+<html>
+<head>
+  <title>Bozeman Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div id="map" style="height:100vh"></div>
+  <script>
+    const map = L.map('map').setView([45.68, -111.04], 11);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.marker([45.67, -111.05]).addTo(map).bindPopup('Bozeman, MT');
+  </script>
+</body>
+</html>
